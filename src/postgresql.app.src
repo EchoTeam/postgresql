@@ -1,0 +1,14 @@
+{application, postgresql,
+ [
+  {description, ""},
+  {vsn, "1.0.0"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib,
+                  node_pool,
+                  stats
+                 ]},
+  {mod, { postgresql_app, []}},
+  {env, []}
+ ]}.

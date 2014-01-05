@@ -6,7 +6,7 @@
 -include_lib("epgsql/include/pgsql.hrl").
 
 make_array_error_test() ->
-    ?assertEqual({error, function_clause}, try postgresql:make_array(ok), '$ok' catch C:R -> {C, R} end).
+    ?assertError(function_clause, postgresql:make_array(ok)).
 
 make_array_test_() ->
     [{Title, fun() ->
@@ -25,8 +25,8 @@ make_array_test_() ->
     ]].
 
 of_array_error_test() ->
-    ?assertEqual({error, function_clause}, try postgresql:of_array(ok), '$ok' catch C:R -> {C, R} end),
-    ?assertEqual({error, function_clause}, try postgresql:of_array("ok"), '$ok' catch C:R -> {C, R} end).
+    ?assertError(function_clause, postgresql:of_array(ok)),
+    ?assertError(function_clause, postgresql:of_array("ok")).
 
 of_array_test_() ->
     [{Title, fun() ->

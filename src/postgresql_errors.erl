@@ -4,8 +4,7 @@
 -export([
     internal_error_reason_to_string/1,
     query_error_code/1,
-    public_error_reason/1,
-    public_error_reason_to_string/1
+    public_error_reason/1
 ]).
 
 -ifdef(TEST).
@@ -26,7 +25,7 @@ internal_error_reason_to_string(Reason) ->
         {custom, ParsedReason} ->
             "custom_" ++ atom_to_list(ParsedReason);
         {unexpected, _ParsedReason} ->
-            "unknown"
+            "undefined"
     end.
 
 -spec query_error_code(Reason :: postgresql_error_reasons()) -> 'undefined' | known_errors_codes() | unknown_errors_codes().
@@ -44,7 +43,7 @@ query_error_code(Reason) ->
 public_error_reason(Reason) ->
     case parse_error_reason(Reason) of
         {known_code, KnownReason} ->
-            {error, KnownReason};
+            KnownReason;
         {unknown_code, {_ErrorCode, _ErrorMessage} = UnknownReason} ->
             UnknownReason;
         {expected, {_Type, _Source} = ExpectedReason} ->
@@ -54,16 +53,6 @@ public_error_reason(Reason) ->
         {unexpected, Reason} ->
             Reason
     end.
-
--spec public_error_reason_to_string(public_error_reasons()) -> nonempty_string().
-public_error_reason_to_string({error, Reason}) when is_atom(Reason) ->
-    atom_to_list(Reason);
-public_error_reason_to_string({Code, _Message}}) when is_binary(Code) ->
-    "code_" ++ binary_to_list(Code);
-public_error_reason_to_string({Reason, Source}) ->
-    atom_to_list(Reason) ++ "_" ++ atom_to_list(Source);
-public_error_reason_to_string(_Reason) ->
-    "general".
 
 % private functions
 

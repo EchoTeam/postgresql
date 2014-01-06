@@ -30,7 +30,7 @@ internal_error_reason_to_string_test() ->
         {"error_23506", make_pgsql_error_from_code(<<"23506">>)},
         {"busy_service", {busy, service}},
         {"custom_someerror", {custom, someerror}},
-        {"general", e}
+        {"undefined", e}
     ]].
 
 query_error_code_test() ->
@@ -48,25 +48,14 @@ public_error_reason_test() ->
     [begin
         ?assertEqual(Expectation, postgresql_errors:public_error_reason(Reason))
     end || {Expectation, Reason} <- [
-        {{query_error, duplicate_key}, make_pgsql_error_from_code(<<"23505">>)},
-        {{query_error, {<<"23506">>, "message"}}, make_pgsql_error_from_code(<<"23506">>)},
+        {duplicate_key, make_pgsql_error_from_code(<<"23505">>)},
+        {{<<"23506">>, "message"}, make_pgsql_error_from_code(<<"23506">>)},
         {{busy, service}, {busy, service}},
         {{timeout, service}, {timeout, service}},
         {{closed, service}, {closed, service}},
         {{nodedown, service}, {nodedown, service}},
         {{custom, e}, {custom, e}},
         {undefined, undefined}
-    ]].
-
-public_error_reason_to_string_test() ->
-    [begin
-        ?assertEqual(Expectation, postgresql_errors:public_error_reason_to_string(Reason))
-    end || {Expectation, Reason} <- [
-        {"duplicate_key", {query_error, duplicate_key}},
-        {"code_1", {query_error, {<<"1">>, "msg"}}},
-        {"timeout_allocate_request", {timeout, allocate_request}},
-        {"custom_e", {custom, e}},
-        {"general", undefined}
     ]].
 
 % private functions

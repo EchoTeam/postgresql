@@ -9,6 +9,8 @@
     do/2,
     equery/3,
     equery/4,
+    equery_local/3,
+    equery_local/4,
     equery_nowait/3,
     equery_nowait/4,
     transaction_equery/3,
@@ -18,6 +20,8 @@
 
     squery/2,
     squery/3,
+    squery_local/2,
+    squery_local/3,
     squery_nowait/2,
     squery_nowait/3,
     transaction_squery/2,
@@ -76,6 +80,14 @@ equery_nowait(PoolName, Query, Params) ->
 equery_nowait(PoolName, Mode, Query, Params) when Mode == read; Mode == write ->
     pgsql_handler_call(equery_nowait, [PoolName, Mode, Query, Params]).
 
+-spec equery_local(PoolName :: pool_name(), Query :: pgsql_query(), Params :: pgsql_params()) -> postgresql_query_result().
+equery_local(PoolName, Query, Params) ->
+    equery_local(PoolName, write, Query, Params).
+
+-spec equery_local(PoolName :: pool_name(), Mode :: exec_mode(), Query :: pgsql_query(), Params :: pgsql_params()) -> postgresql_query_result().
+equery_local(PoolName, Mode, Query, Params) when Mode == read; Mode == write ->
+    postgresql_pool:equery(PoolName, Mode, Query, Params).
+
 -spec transaction_equery(Connect :: connection(), Query :: pgsql_query(), Params :: pgsql_params()) -> upstream_transaction_query_result().
 transaction_equery(Connect, Query, Params) ->
     postgresql_upstream:transaction_equery(Connect, Query, Params).
@@ -97,6 +109,14 @@ squery_nowait(PoolName, Query) ->
 -spec squery_nowait(PoolName :: pool_name(), Mode :: exec_mode(), Query :: pgsql_query()) -> postgresql_query_result().
 squery_nowait(PoolName, Mode, Query) when Mode == read; Mode == write ->
     pgsql_handler_call(squery_nowait, [PoolName, Mode, Query]).
+
+-spec squery_local(PoolName :: pool_name(), Query :: pgsql_query()) -> postgresql_query_result().
+squery_local(PoolName, Query) ->
+    squery_local(PoolName, write, Query).
+
+-spec squery_local(PoolName :: pool_name(), Mode :: exec_mode(), Query :: pgsql_query()) -> postgresql_query_result().
+squery_local(PoolName, Mode, Query) when Mode == read; Mode == write ->
+    postgresql_pool:squery(PoolName, Mode, Query).
 
 -spec transaction_squery(Connect :: connection(), Query :: pgsql_query()) -> upstream_transaction_query_result().
 transaction_squery(Connect, Query) ->

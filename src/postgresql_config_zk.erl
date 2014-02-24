@@ -101,7 +101,6 @@ update_upstreams(PoolName, PoolUpstreams) ->
 init(Pools) ->
     process_flag(trap_exit, true),
     PoolsInfo = fetch_pools_info(self(), Pools, false),
-    echo_zookeeper:add_consumer(?MODULE),
     {ok, #state{pools = Pools, pools_info = PoolsInfo}}.
 
 terminate(Reason, _State) ->
@@ -236,25 +235,30 @@ set_pools_json_ll(JSON) ->
     end.
 
 fetch_pools_info(Server, Pools, RestartPgSQLPools) ->
-    lager:info("[fetch_pools_info] Fetching PostgreSQL pools info from ZooKeeper."),
-    {Errors, PoolsInfo} = get_pools_upstreams(Pools),
-    lager:info("[fetch_pools_info] ZK fetch completed. Errors: ~p; PoolsInfo: ~p", [Errors, PoolsInfo]),
-    case Errors of
-        [] ->
-            lager:info("[fetch_pools_info] Successfully received ZK data. Setup watches."),
-            setup_watches(Server, Pools),
-            case RestartPgSQLPools of
-                true ->
-                    lager:info("[fetch_pools_info] Schedule PostgreSQL pools restart."),
-                    [schedule_postgresql_pool_restart(self(), PoolName) || PoolName <- Pools];
-                false -> ok
-            end;
-        _ ->
-            lager:warning("[fetch_pools_info] Got errors when retrieving postgresql info from zookeeper. Schedule one more fetch."),
-            schedule_refetching(Server)
-    end,
-    lager:info("[fetch_pools_info] Successfully fetched up to date ZK info and setup watches."),
-    PoolsInfo.
+    Res = echo_zookeeper:add_consumer(?MODULE),
+    case Res of
+        ok ->
+            lager:info("[fetch_pools_info] Fetching PostgreSQL pools info from ZooKeeper."),
+            {Errors, PoolsInfo} = get_pools_upstreams(Pools),
+            lager:info("[fetch_pools_info] ZK fetch completed. Errors: ~p; PoolsInfo: ~p", [Errors, PoolsInfo]),
+            case Errors of
+                [] ->
+                    lager:info("[fetch_pools_info] Successfully received ZK data. Setup watches."),
+                    setup_watches(Server, Pools),
+                    case RestartPgSQLPools of
+                        true ->
+                            lager:info("[fetch_pools_info] Schedule PostgreSQL pools restart."),
+                            [schedule_postgresql_pool_restart(self(), PoolName) || PoolName <- Pools];
+                        false -> ok
+                    end;
+                _ ->
+                    lager:warning("[fetch_pools_info] Got errors when retrieving postgresql info from zookeeper. Schedule one more fetch."),
+                    schedule_refetching(Server)
+            end,
+            lager:info("[fetch_pools_info] Successfully fetched up to date ZK info and setup watches."),
+            PoolsInfo;
+        _ -> schedule_refetching(Server), []
+    end.
 
 get_pools_upstreams(Pools) ->
     {Errors, PoolsInfo} = lists:foldl(

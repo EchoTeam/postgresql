@@ -1,8 +1,3 @@
-%%%
-%%% Copyright (c) 2012 JackNyfe. All rights reserved.
-%%% THIS SOFTWARE IS PROPRIETARY AND CONFIDENTIAL. DO NOT REDISTRIBUTE.
-%%%
-
 % vim: ts=4 sts=4 sw=4 expandtab
 
 -module(echo_zookeeper).

@@ -1,0 +1,12 @@
+[
+    {postgresql, [
+      {pools, [
+          {customers_pool, 'echo-customers'},
+          {accounts_pool,  'echo-accounts'},
+          {customer_pools,  []}
+      ]},
+      {default_customer_pool, []},
+      {zookeeper, [{hosts,[["ngat0", 2181],["ngat1", 2181],["ngat2", 2181]]}, {chroot, "/prod"}]},
+      {nodes, ['postgres@ncs0']}
+    ]}
+].

@@ -34,20 +34,7 @@ postgresql_pools() ->
 
 zookeeper() ->
     {ok, ZK} = application:get_env(postgresql, zookeeper),
-	[
-		{
-			echo_zookeeper,
-			{
-				echo_zookeeper,
-				start_link,
-				[
-					[{Host, Port, 30000, 10000} || [Host, Port] <- proplists:get_value(hosts, ZK)],
-					proplists:get_value(chroot, ZK),
-					[postgresql_config_zk]
-				]
-			},
-			permanent, 10000, worker, [echo_zookeeper]
-		},
+	[	
 		{
 			postgresql_config_zk,
 			{postgresql_config_zk, start_link, []},

@@ -101,6 +101,7 @@ update_upstreams(PoolName, PoolUpstreams) ->
 init(Pools) ->
     process_flag(trap_exit, true),
     PoolsInfo = fetch_pools_info(self(), Pools, false),
+    echo_zookeeper:add_consumer(?MODULE),
     {ok, #state{pools = Pools, pools_info = PoolsInfo}}.
 
 terminate(Reason, _State) ->

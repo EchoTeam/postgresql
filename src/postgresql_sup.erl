@@ -33,7 +33,6 @@ postgresql_pools() ->
         || PoolName <- postgresql_config:pool_names()].
 
 zookeeper() ->
-    {ok, ZK} = application:get_env(postgresql, zookeeper),
 	[	
 		{
 			postgresql_config_zk,
